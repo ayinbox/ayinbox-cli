@@ -1,0 +1,35 @@
+AY Inbox CLI licence
+
+Copyright (c) 2026 AY Inbox. All rights reserved.
+
+The `ayinbox` command line tool is proprietary software. Its source code is
+not published, and this licence covers the compiled binaries only.
+
+You may:
+
+- download, install and run the binaries, on as many machines as you like,
+  to use an AY Inbox account you are allowed to use;
+- use them in scripts, CI pipelines, containers and automation, including
+  for your own commercial work;
+- redistribute the unmodified release archives and binaries, for example in
+  an internal mirror or a container image, as long as this licence goes with
+  them.
+
+You may not:
+
+- modify, decompile, disassemble or reverse engineer the binaries, except
+  where the law allows it regardless of this licence;
+- sell the binaries or offer them as a product or service of your own;
+- remove or change this licence or any copyright notice.
+
+Using the tool also means using the AY Inbox service, which is governed by
+the terms you accepted for your account. Nothing here grants any right to
+the service itself.
+
+The binaries are provided "as is", without warranty of any kind, express or
+implied, including the warranties of merchantability, fitness for a
+particular purpose and non-infringement. In no event shall AY Inbox be
+liable for any claim, damages or other liability arising from the binaries
+or their use.
+
+Questions: team@ayinbox.com
