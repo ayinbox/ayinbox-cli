@@ -11,6 +11,7 @@ ARG VERSION
 ARG SHA256_AMD64
 ARG SHA256_ARM64
 
+SHELL ["/bin/ash", "-eo", "pipefail", "-c"]
 WORKDIR /tmp/ayinbox
 # The checksum is pinned at build time, so a changed asset fails the build.
 RUN set -eu; \
@@ -32,7 +33,7 @@ FROM alpine:3.23
 RUN apk add --no-cache ca-certificates tzdata && adduser -D -u 1000 ayinbox
 
 COPY --from=fetch /tmp/ayinbox/ayinbox /usr/local/bin/ayinbox
-COPY --from=fetch /tmp/ayinbox/LICENSE /usr/share/doc/ayinbox/LICENSE
+COPY --from=fetch /tmp/ayinbox/LICENSE /tmp/ayinbox/LICENSE-APACHE /tmp/ayinbox/NOTICE /usr/share/doc/ayinbox/
 
 # No browser in a container, so AYINBOX_TOKEN is the way in.
 ENV AYINBOX_CONFIG_DIR=/home/ayinbox/.config/ayinbox \
