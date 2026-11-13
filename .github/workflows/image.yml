@@ -1,0 +1,80 @@
+name: Image
+
+# Builds ghcr.io/ayinbox/ayinbox-cli from the release's own binaries,
+# pinned to the release's checksums.txt, using this repository's GITHUB_TOKEN.
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Release tag to build, for example v1.2.3
+        required: true
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: image-${{ github.event.release.tag_name || inputs.version }}
+  cancel-in-progress: false
+
+jobs:
+  image:
+    runs-on: ubuntu-latest
+    env:
+      IMAGE: ghcr.io/${{ github.repository_owner }}/ayinbox-cli
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Resolve the release
+        id: release
+        env:
+          TAG: ${{ github.event.release.tag_name || inputs.version }}
+          PRERELEASE: ${{ github.event.release.prerelease || 'false' }}
+        run: |
+          set -euo pipefail
+          case "$TAG" in
+            v[0-9]*.[0-9]*.[0-9]*) ;;
+            *) echo "not a release tag: $TAG" >&2; exit 1 ;;
+          esac
+          curl -fsSL -o checksums.txt "https://github.com/${GITHUB_REPOSITORY}/releases/download/${TAG}/checksums.txt"
+          amd64=$(awk '$2 == "ayinbox_linux_amd64.tar.gz" { print $1 }' checksums.txt)
+          arm64=$(awk '$2 == "ayinbox_linux_arm64.tar.gz" { print $1 }' checksums.txt)
+          [ ${#amd64} -eq 64 ] && [ ${#arm64} -eq 64 ] || { echo "checksums.txt lacks a Linux archive" >&2; exit 1; }
+          tags="${IMAGE}:${TAG}"
+          case "$TAG" in *-*) PRERELEASE=true ;; esac
+          if [ "$PRERELEASE" != "true" ]; then tags="${tags},${IMAGE}:latest"; fi
+          {
+            echo "tag=$TAG"
+            echo "sha_amd64=$amd64"
+            echo "sha_arm64=$arm64"
+            echo "tags=$tags"
+          } >> "$GITHUB_OUTPUT"
+
+      - uses: docker/setup-qemu-action@v3
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.release.outputs.tags }}
+          build-args: |
+            VERSION=${{ steps.release.outputs.tag }}
+            SHA256_AMD64=${{ steps.release.outputs.sha_amd64 }}
+            SHA256_ARM64=${{ steps.release.outputs.sha_arm64 }}
+          labels: |
+            org.opencontainers.image.title=ayinbox
+            org.opencontainers.image.description=The AY Inbox command line tool
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            org.opencontainers.image.url=https://docs.ayinbox.com/api/cli/
+            org.opencontainers.image.version=${{ steps.release.outputs.tag }}
+            org.opencontainers.image.licenses=LicenseRef-AyInbox-CLI
