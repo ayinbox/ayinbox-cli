@@ -1,0 +1,34 @@
+{
+  "name": "@ayinbox/cli",
+  "version": "0.0.0",
+  "description": "The AY Inbox command line tool. Installs the verified ayinbox release binary for your platform.",
+  "keywords": ["ayinbox", "cli", "cold-email", "email"],
+  "homepage": "https://docs.ayinbox.com/api/cli/",
+  "bugs": "https://github.com/ayinbox/ayinbox-cli/issues",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ayinbox/ayinbox-cli.git",
+    "directory": "npm"
+  },
+  "license": "SEE LICENSE IN LICENSE",
+  "author": "AY Inbox <team@ayinbox.com>",
+  "bin": {
+    "ayinbox": "bin/ayinbox.js"
+  },
+  "files": [
+    "bin/",
+    "lib/",
+    "scripts/",
+    "LICENSE",
+    "README.md"
+  ],
+  "scripts": {
+    "postinstall": "node scripts/postinstall.js",
+    "test": "node --test"
+  },
+  "os": ["darwin", "linux", "win32"],
+  "cpu": ["x64", "arm64"],
+  "engines": {
+    "node": ">=18"
+  }
+}
